@@ -10,8 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ConsumerListCommand extends Command
 {
-    protected static string $defaultName = 'solar:consumer:list';
-    protected static string $defaultDescription = 'Get all consumers.';
+    protected static $defaultName = 'solar:consumer:list';
+    protected static $defaultDescription = 'Get all consumers.';
 
     protected function configure()
     {

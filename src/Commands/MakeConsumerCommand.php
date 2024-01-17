@@ -10,8 +10,8 @@ use Symfony\Component\Console\Question\Question;
 
 class MakeConsumerCommand extends Command
 {
-    protected static string $defaultName = 'solar:make:consumer';
-    protected static string $defaultDescription = 'Creates a new queue consumer class.';
+    protected static $defaultName = 'solar:make:consumer';
+    protected static $defaultDescription = 'Creates a new queue consumer class.';
 
     protected function configure()
     {

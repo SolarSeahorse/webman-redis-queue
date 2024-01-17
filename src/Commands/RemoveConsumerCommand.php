@@ -10,8 +10,8 @@ use Symfony\Component\Console\Question\Question;
 
 class RemoveConsumerCommand extends Command
 {
-    protected static string $defaultName = 'solar:remove:consumer';
-    protected static string $defaultDescription = 'Removes a specified queue and optionally its Redis data.';
+    protected static $defaultName = 'solar:remove:consumer';
+    protected static $defaultDescription = 'Removes a specified queue and optionally its Redis data.';
 
     protected function configure()
     {

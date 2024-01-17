@@ -10,8 +10,8 @@ use Symfony\Component\Console\Question\Question;
 
 class CleanRedisDataCommand extends Command
 {
-    protected static string $defaultName = 'solar:clean:redis:data';
-    protected static string $defaultDescription = 'Clean Queue redis data.';
+    protected static $defaultName = 'solar:clean:redis:data';
+    protected static $defaultDescription = 'Clean Queue redis data.';
 
     protected function configure()
     {
