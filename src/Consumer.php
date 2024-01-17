@@ -621,7 +621,7 @@ abstract class Consumer
                         $messageId,
                         $consumerMessage,
                         new Exception(
-                            'PENDING_PROCESSING_AUTO: The number of message delivery times exceeds the maximum number of retries.'
+                            'PENDING_PROCESSING_RETRY: The number of message delivery times exceeds the maximum number of retries.'
                         ));
 
                     return;
