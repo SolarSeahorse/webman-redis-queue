@@ -47,7 +47,7 @@ class MakeConsumerCommand extends Command
 
             CommandUtils::setProcessConfig($queueName, [
                 'handler' => ConsumerProcess::class,
-                'count' => $processCount,
+                'count' => (int) $processCount,
                 'constructor' => [
                     'consumer_source' => $fullClassName
                 ]
