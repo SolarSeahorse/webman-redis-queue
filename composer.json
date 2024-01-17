@@ -1,0 +1,25 @@
+{
+  "name": "solarseahorse/webman-redis-queue",
+  "type": "library",
+  "license": "MIT",
+  "description": "A webman redis queue plug-in",
+  "autoload": {
+    "psr-4": {
+      "SolarSeahorse\\WebmanRedisQueue\\" : "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SolarSeahorse\\Tests\\": "tests"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5"
+  },
+  "require": {
+    "php": ">=8.0",
+    "ext-redis": "*",
+    "ext-pdo": "*",
+    "webman/console": "^1.3"
+  }
+}
