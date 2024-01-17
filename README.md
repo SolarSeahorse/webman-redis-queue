@@ -198,7 +198,7 @@ return array (
   'sendCode' => 
   array (
     'handler' => 'SolarSeahorse\\WebmanRedisQueue\\Process\\ConsumerProcess',
-    'count' => '1',
+    'count' => 1,
     'constructor' => 
     array (
       'consumer_source' => 'app\\queue\\test\\SendCode',
