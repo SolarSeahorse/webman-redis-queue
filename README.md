@@ -55,7 +55,7 @@ return [
 ];
 ```
 
-> 在webman集群下，每个节点需要有一个中央的Redis连接提供给队列。
+> 在webman集群下，每个节点需要连接同一个redis。
 
 ## 断线重连
 
@@ -862,7 +862,7 @@ public function handlerDeadLetterQueue($messageId, ConsumerMessageInterface $con
                         $messageId,
                         $consumerMessage,
                         new Exception(
-                            'PENDING_PROCESSING_AUTO: The number of message delivery times exceeds the maximum number of retries.'
+                            'PENDING_PROCESSING_RETRY: The number of message delivery times exceeds the maximum number of retries.'
                         ));
 
                     return;
