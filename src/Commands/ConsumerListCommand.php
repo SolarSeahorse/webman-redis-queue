@@ -25,7 +25,7 @@ class ConsumerListCommand extends Command
 
             $table = new Table($output);
 
-            $table->setHeaders(['Key', 'Handler', 'Count', 'Consumer', 'Stream Length', 'Delay Set Length', 'Pending List Length', 'Active']);
+            $table->setHeaders(['Key', 'Handler', 'Count', 'Consumer', 'Stream Length', 'Delay Set Length', 'Pending List Length']);
 
             foreach ($config as $key => $value) {
 
@@ -35,12 +35,6 @@ class ConsumerListCommand extends Command
 
                 $streamLength = $redisConnection->xLen($consumerInstance->getStreamKey());
                 $delaySetLength = $redisConnection->zCard($consumerInstance->getDelayedTaskSetKey());
-
-                $streamInfo = $redisConnection->xInfo('STREAM', $consumerInstance->getStreamKey());
-
-                $lastGeneratedId = $streamInfo['last-generated-id'];
-
-                $timestampMs = explode('-', $lastGeneratedId)[0];
 
                 $pendingMessages = $consumerInstance->getRedisConnection()->xPending(
                     $consumerInstance->getStreamKey(),
@@ -59,8 +53,7 @@ class ConsumerListCommand extends Command
                     $value['constructor']['consumer_source'] ?? 'N/A',
                     $streamLength,
                     $delaySetLength,
-                    $pendingListLength,
-                    $timestampMs ? $this->humanizeTimestamp($timestampMs) : 'unknown'
+                    $pendingListLength
                 ]);
             }
 
@@ -71,23 +64,6 @@ class ConsumerListCommand extends Command
             var_export($e->getMessage());
 
             return Command::FAILURE;
-        }
-    }
-
-    private function humanizeTimestamp($timestampMs): string
-    {
-        $secondsAgo = (microtime(true) * 1000 - $timestampMs) / 1000;
-
-        if ($secondsAgo < 1) {
-            return round($secondsAgo * 1000) . ' milliseconds ago';
-        } elseif ($secondsAgo < 60) {
-            return round($secondsAgo) . ' seconds ago';
-        } elseif ($secondsAgo < 3600) {
-            return round($secondsAgo / 60) . ' minutes ago';
-        } elseif ($secondsAgo < 86400) {
-            return round($secondsAgo / 3600) . ' hours ago';
-        } else {
-            return round($secondsAgo / 86400) . ' days ago';
         }
     }
 }
