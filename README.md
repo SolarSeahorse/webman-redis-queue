@@ -654,7 +654,7 @@ class SendEmail extends Consumer
 
 ```
 /**
-     * 处理错误重试 没有超过最大重试次数 会调用此方法
+     * 处理错误重试
      * @param $messageId
      * @param ConsumerMessageInterface $consumerMessage
      * @param Throwable $e
@@ -935,16 +935,17 @@ $redisConnection->sAdd();
 - `Consumer` 消费者类名
 - `Stream Length` 当前队列总长度(不包含Pending列表中的数量)
 - `Delay Set Length` 当前延时队列任务数
-- `Pending List Length` Pending列表长度,已读取但未ack的消息会在此列表中
-- `Active` Stream最近写入消息的时间
+- `Pending List Length` 当前Pending列表长度
 
 ```
-+-----------+--------------------------------------------------------+-------+--------------------------+---------------+------------------+---------------------+---------------+
-| Key       | Handler                                                | Count | Consumer                 | Stream Length | Delay Set Length | Pending List Length | Last Active   |
-+-----------+--------------------------------------------------------+-------+--------------------------+---------------+------------------+---------------------+---------------+
-| SendCode  | SolarSeahorse\WebmanRedisQueue\Process\ConsumerProcess | 20    | app\queue\test\SendCode  | 1996          | 950              | >=500               | 1 seconds ago |
-| SendEmail | SolarSeahorse\WebmanRedisQueue\Process\ConsumerProcess | 20    | app\queue\test\SendEmail | 0             | 0                | 0                   | unknown       |
-+-----------+--------------------------------------------------------+-------+--------------------------+---------------+------------------+---------------------+---------------+
++-------------+--------------------------------------------------------+-------+--------------------------+---------------+------------------+---------------------+
+| Key         | Handler                                                | Count | Consumer                 | Stream Length | Delay Set Length | Pending List Length |
++-------------+--------------------------------------------------------+-------+--------------------------+---------------+------------------+---------------------+
+| SendCode    | SolarSeahorse\WebmanRedisQueue\Process\ConsumerProcess | 20    | app\queue\test\SendCode  | 1996          | 950              | >=500               |
+| SendEmail   | SolarSeahorse\WebmanRedisQueue\Process\ConsumerProcess | 20    | app\queue\test\SendEmail | 0             | 0                | 0                   |
+| SendSmsCode | SolarSeahorse\WebmanRedisQueue\Process\ConsumerProcess | 1     | app\queue\SendSmsCode    | 0             | 0                | 0                   |
++-------------+--------------------------------------------------------+-------+--------------------------+---------------+------------------+---------------------+
+
 ```
 
 ## 处理历史消息
