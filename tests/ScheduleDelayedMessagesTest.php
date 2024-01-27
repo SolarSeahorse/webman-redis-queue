@@ -6,13 +6,13 @@ use SolarSeahorse\WebmanRedisQueue\Interface\QueueMessageInterface;
 use SolarSeahorse\WebmanRedisQueue\Queue\Factory\DelayedQueueFactory;
 use SolarSeahorse\WebmanRedisQueue\Queue\QueueMessage;
 
-class scheduleDelayedMessagesTest extends BaseCase
+class ScheduleDelayedMessagesTest extends BaseCase
 {
 
     public function scheduleDelayedMessages($dataArr, int $assertLen)
     {
         // 发布延时
-        $this->consumerDemo::createQueueProducer()->scheduleDelayedMessages($dataArr);
+        $this->queueProducer->scheduleDelayedMessages($dataArr);
 
         $this->assertScheduleDelayedMessage($assertLen);
 

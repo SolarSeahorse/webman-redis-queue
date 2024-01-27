@@ -65,7 +65,20 @@ class DelayedQueue implements DelayedQueueInterface
      */
     public function hasTaskExists(string $identifier): bool
     {
-        return $this->connection->sIsMember($this->delayedTaskSetKey, $identifier);
+        return $this->connection->zScore($this->delayedTaskSetKey, $identifier);
+    }
+
+    /**
+     * Verify multiple tasks exist
+     * @throws RedisException
+     */
+    public function hasTasksExist(array $identifiers): array|bool
+    {
+        $pipeline = $this->connection->pipeline();
+        foreach ($identifiers as $id) {
+            $pipeline->zScore($this->delayedTaskSetKey, $id);
+        }
+        return $pipeline->exec();
     }
 
     /**
@@ -74,7 +87,7 @@ class DelayedQueue implements DelayedQueueInterface
      */
     public function removeTask(string $identifier): bool
     {
-        return $this->removeTasks([$identifier]);
+        return is_array($this->removeTasks([$identifier]));
     }
 
     /**
@@ -83,13 +96,13 @@ class DelayedQueue implements DelayedQueueInterface
      */
     public function removeTasks(array $identifiers): array|bool
     {
-        $this->connection->pipeline();
+        $pipeline = $this->connection->pipeline();
         foreach ($identifiers as $identifier) {
-            $this->connection->zRem($this->delayedTaskSetKey, $identifier);
-            $this->connection->hDel($this->delayedDataHashKey, $identifier);
+            $pipeline->zRem($this->delayedTaskSetKey, $identifier);
+            $pipeline->hDel($this->delayedDataHashKey, $identifier);
         }
 
-        return $this->connection->exec();
+        return $pipeline->exec();
     }
 
     /**

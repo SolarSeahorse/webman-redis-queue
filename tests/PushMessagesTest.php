@@ -22,7 +22,7 @@ class PushMessagesTest extends BaseCase
 
 
         // 通过消费类创建生产者
-        $pushResult = $this->consumerDemo::createQueueProducer()->pushMessages($dataArr);
+        $pushResult = $this->queueProducer->pushMessages($dataArr);
 
 
         $this->isPushMessagesSuccessful($pushResult, $dataArr);

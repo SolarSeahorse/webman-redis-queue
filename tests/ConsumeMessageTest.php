@@ -34,7 +34,7 @@ class ConsumeMessageTest extends BaseCase
      */
     public function testConsumeMessage()
     {
-        $messageId = $this->consumerDemo::createQueueProducer()->pushMessage([
+        $messageId = $this->queueProducer->pushMessage([
             'type' => 'ping'
         ]);
 

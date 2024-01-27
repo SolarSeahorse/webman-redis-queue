@@ -36,4 +36,28 @@ interface QueueProducerInterface
      * @return array|false
      */
     public function scheduleDelayedMessages(array $dataArray): array|bool;
+
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    public function removeDelayedMessage(string $identifier): bool;
+
+    /**
+     * @param array $identifiers
+     * @return bool|array
+     */
+    public function removeDelayedMessages(array $identifiers): array|bool;
+
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    public function hasDelayedMessageExists(string $identifier): bool;
+
+    /**
+     * @param array $identifiers
+     * @return bool|array
+     */
+    public function hasDelayedMessagesExist(array $identifiers): array|bool;
 }

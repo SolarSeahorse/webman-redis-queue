@@ -10,6 +10,8 @@ interface DelayedQueueInterface
 
     public function hasTaskExists(string $identifier): bool;
 
+    public function hasTasksExist(array $identifiers): array|bool;
+
     public function removeTask(string $identifier): bool;
 
     public function removeTasks(array $identifiers): array|bool;

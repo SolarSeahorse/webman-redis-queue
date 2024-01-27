@@ -4,12 +4,12 @@ namespace SolarSeahorse\Tests;
 
 use SolarSeahorse\WebmanRedisQueue\Queue\Factory\QueueMessageFactory;
 
-class scheduleDelayedMessageTest extends BaseCase
+class ScheduleDelayedMessageTest extends BaseCase
 {
     public function scheduleDelayedMessage($data, int $assertLen)
     {
         // 发布延时
-        $this->consumerDemo::createQueueProducer()->scheduleDelayedMessage($data);
+        $this->queueProducer->scheduleDelayedMessage($data);
 
         $this->assertScheduleDelayedMessage($assertLen);
 

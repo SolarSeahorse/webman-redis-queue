@@ -22,7 +22,7 @@ class PushMessageTest extends BaseCase
         $this->deleteMessages([$messageId]);
 
         // 通过消费类创建生产者
-        $messageId = $this->consumerDemo::createQueueProducer()->pushMessage($data);
+        $messageId = $this->queueProducer->pushMessage($data);
 
         $this->getMessageDetails($messageId);
 
@@ -51,7 +51,7 @@ class PushMessageTest extends BaseCase
         // 修改队列数据
         $queueMessage->setData(['data' => 'ok']);
 
-        $messageId = $this->consumerDemo::createQueueProducer()->pushMessage($queueMessage);
+        $messageId = $this->queueProducer->pushMessage($queueMessage);
 
         $messageData = $this->getMessageDetails($messageId);
 

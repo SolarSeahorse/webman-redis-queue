@@ -3,6 +3,8 @@
 namespace SolarSeahorse\WebmanRedisQueue\Queue;
 
 use Exception;
+use SolarSeahorse\WebmanRedisQueue\Exceptions\DelayedMessageCheckException;
+use SolarSeahorse\WebmanRedisQueue\Exceptions\DelayedMessageRemoveException;
 use SolarSeahorse\WebmanRedisQueue\Queue\Factory\DelayedQueueFactory;
 use SolarSeahorse\WebmanRedisQueue\Exceptions\QueueMessagePushException;
 use SolarSeahorse\WebmanRedisQueue\Exceptions\ScheduleDelayedMessageException;
@@ -77,6 +79,14 @@ class QueueProducer extends AbstractQueueMember implements QueueProducerInterfac
     }
 
     /**
+     * @return DelayedQueue
+     */
+    private function getDelayedQueue(): DelayedQueue
+    {
+        return DelayedQueueFactory::create($this);
+    }
+
+    /**
      * Add delay queue message
      * @param mixed|QueueMessageInterface $data
      * @throws ScheduleDelayedMessageException
@@ -104,7 +114,7 @@ class QueueProducer extends AbstractQueueMember implements QueueProducerInterfac
         $executeAtTimestamp = $message->getDelayUntil();
 
         try {
-            return DelayedQueueFactory::create($this)->addTask(
+            return $this->getDelayedQueue()->addTask(
                 $message->getIdentifier(),
                 $message->toArray(),
                 $executeAtTimestamp);
@@ -154,10 +164,74 @@ class QueueProducer extends AbstractQueueMember implements QueueProducerInterfac
         unset($dataArray);
 
         try {
-            return DelayedQueueFactory::create($this)->addTasks($tasks);
+            return $this->getDelayedQueue()->addTasks($tasks);
         } catch (Exception $e) {
             LogUtility::error("Failed to schedule delayed messages: " . $e->getMessage());
             throw new ScheduleDelayedMessageException("Failed to schedule delayed messages: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Remove a specific delayed message.
+     * @param string $identifier
+     * @return bool
+     * @throws DelayedMessageRemoveException
+     */
+    public function removeDelayedMessage(string $identifier): bool
+    {
+        try {
+            return $this->getDelayedQueue()->removeTask($identifier);
+        } catch (Exception $e) {
+            LogUtility::error("Failed to remove delayed message: " . $e->getMessage());
+            throw new DelayedMessageRemoveException("Failed to remove delayed message: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Remove multiple delayed messages.
+     * @param array $identifiers
+     * @return array|bool
+     * @throws DelayedMessageRemoveException
+     */
+    public function removeDelayedMessages(array $identifiers): array|bool
+    {
+        try {
+            return $this->getDelayedQueue()->removeTasks($identifiers);
+        } catch (Exception $e) {
+            LogUtility::error("Failed to remove delayed messages: " . $e->getMessage());
+            throw new DelayedMessageRemoveException("Failed to remove delayed messages: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Check if a specific delayed message exists.
+     * @param string $identifier
+     * @return bool
+     * @throws DelayedMessageCheckException
+     */
+    public function hasDelayedMessageExists(string $identifier): bool
+    {
+        try {
+            return $this->getDelayedQueue()->hasTaskExists($identifier);
+        } catch (Exception $e) {
+            LogUtility::error("Failed to check if delayed message exists: " . $e->getMessage());
+            throw new DelayedMessageCheckException("Failed to check if delayed message exists: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Check if multiple delayed messages exist.
+     * @param array $identifiers
+     * @return array|bool
+     * @throws DelayedMessageCheckException
+     */
+    public function hasDelayedMessagesExist(array $identifiers): array|bool
+    {
+        try {
+            return $this->getDelayedQueue()->hasTasksExist($identifiers);
+        } catch (Exception $e) {
+            LogUtility::error("Failed to check if delayed messages exist: " . $e->getMessage());
+            throw new DelayedMessageCheckException("Failed to check if delayed messages exist: " . $e->getMessage(), 0, $e);
         }
     }
 }

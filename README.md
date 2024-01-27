@@ -18,8 +18,37 @@
 通过 Composer 安装 `webman-redis-queue`：
 
 ```bash
-composer require solarseahorse/webman-redis-queue:^1.0.0
+composer require solarseahorse/webman-redis-queue:^1.0.1
 ```
+
+## 版本变更记录
+
+### v1.0.1 (20240128)
+
+#### 新增功能
+
+- **删除延时消息**：
+  新增 `removeDelayedMessage` 方法，允许移除一条延时消息。
+
+- **批量删除延时消息**：
+  新增 `removeDelayedMessages` 方法，允许一次性移除多个指定的延时消息。
+
+- **检查延时消息存在性**：
+  新增 `hasDelayedMessageExists` 方法，用于检查延时消息是否存在。
+
+- **批量检查延时消息存在性**：
+  新增 `hasDelayedMessagesExist` 方法，用于批量检查多个延时消息是否存在。
+
+#### 异常处理
+
+- **引入新的异常类型**：
+  为延时消息的移除和存在性检查操作引入了 `DelayedMessageRemoveException` 和 `DelayedMessageCheckException` 异常类型。
+
+#### 文档修正
+
+- **修正文档中的几处错误**：
+  对插件的官方文档进行了更新，修正了之前版本中存在的一些描述不准确和排版错误。
+
 
 ### 测试和反馈
 
@@ -274,10 +303,10 @@ return array (
 
 - 延时队列 HASH KEY，默认自动生成。
 
-### `protected string $waitingDeleteMessagesKey = '';`
+### `protected int $pendingProcessingStrategy = self::PENDING_PROCESSING_RETRY;`
 
 - 消息挂起超时处理策略。`PENDING_PROCESSING_RETRY` 或 `PENDING_PROCESSING_IGNORE`。
-- `PENDING_PROCESSING_RETRY ` 当消息挂起超时会进行异常重试，如果配置了数据库，极端情况`ACK`失败但业务逻辑处理完毕时，异常重试会被跳过。
+- `PENDING_PROCESSING_RETRY ` 当消息挂起超时会进行异常重试。
 - `PENDING_PROCESSING_IGNORE` 当消息挂起超时时，触发`死信处理`方便排查错误，除此之外只清理`pending`列表，不做其他处理。
 - 默认 `PENDING_PROCESSING_RETRY` , 根据队列场景选择合适的处理策略，比如`发送短信验证码`
   ，当系统出现了崩溃等情况，恢复上线时，一般情况下这类消息时不需要恢复，此时重新给用户发送验证码没有意义，但因为`Redis
@@ -485,7 +514,7 @@ $message->setIdentifier($identifier);
 // 投递一条延时消息 60秒后处理
 app\queue\test\SendEmail::createQueueProducer()->scheduleDelayedMessage($message);
 
-// 使用第二个参数会替换之前对象设置
+// 传递参数会替换对象之前的延时和ID设置
 app\queue\test\SendEmail::createQueueProducer()->scheduleDelayedMessage($message, 80, $identifier);
 
 ```
@@ -529,6 +558,90 @@ app\queue\test\SendEmail::createQueueProducer()->scheduleDelayedMessages($dataAr
 ```
 
 > 多redis只需要在队列配置`connection`连接标识，投递方式没有任何变化。
+
+### 移除延时队列消息
+
+> **新功能 (v1.0.1)**
+>
+> 以下功能在插件的 `v1.0.1` 版本中新增。
+
+有时候我们想移除某个或多个延时队列时，可以使用`removeDelayedMessage`和`removeDelayedMessages`
+方法实现，使用`hasDelayedMessageExists`和`hasDelayedMessagesExist`判断一条或多条延时消息是否存在。
+
+> 只有任务还存在延时队列中才能移除，如果已经进入`Stream`队列中将无法移除。
+
+```php
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    public function removeDelayedMessage(string $identifier): bool;
+
+    /**
+     * @param array $identifiers
+     * @return bool|array
+     */
+    public function removeDelayedMessages(array $identifiers): array|bool;
+
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    public function hasDelayedMessageExists(string $identifier): bool;
+
+    /**
+     * @param array $identifiers
+     * @return bool|array
+     */
+    public function hasDelayedMessagesExist(array $identifiers): array|bool;
+```
+
+**代码示例：**
+
+```php
+$consumer = new app\queue\test\SendEmail();
+
+$queueProducer = $consumer::createQueueProducer();
+
+// 添加一条延时消息 通过业务数据生成消息ID
+$queueProducer->scheduleDelayedMessage(['dummy' => 'ok'], 60, 'email_user_id');
+
+// 通过QueueMessage对象
+$queueMessage = $consumer::createQueueMessage(['dummy' => 'ok']);
+
+$queueMessage->setDelay(60);
+
+// 自定义消息ID 不设置将默认生成 通过getIdentifier()获取
+$queueMessage->setIdentifier('test_id');
+
+// 获取消息ID
+$id = $queueMessage->getIdentifier();
+
+// 判断消息是否存在
+var_export(SendEmail::createQueueProducer()->hasDelayedMessageExists('identifier'));  // true or false
+
+// 移除一条延时消息
+var_export(SendEmail::createQueueProducer()->removeDelayedMessage('identifier')); // true or false
+
+// 判断多条消息是否存在 返回一个数组
+var_export(SendEmail::createQueueProducer()->hasDelayedMessagesExist(['identifier1', 'identifier1', 'identifier1']));
+
+//.array (
+//    0 => 1706383223.0,
+//    1 => 1706383223.0,
+//    2 => false
+//).
+
+// 移除多条延时消息 返回一个数组
+var_export(SendEmail::createQueueProducer()->removeDelayedMessages(['identifier1', 'identifier1', 'identifier1']));
+
+//
+//.array (
+//    0 => 1,
+//    1 => 1,
+//    2 => 0
+//).  
+```
 
 ## 消费消息
 

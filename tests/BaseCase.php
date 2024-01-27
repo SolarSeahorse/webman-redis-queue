@@ -54,6 +54,8 @@ class BaseCase extends TestCase
 
         $this->queueConsumer = $queueConsumer;
 
+        $this->queueProducer = $this->consumerDemo::createQueueProducer();
+
         $this->clear();
     }
 
